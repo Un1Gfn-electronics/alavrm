@@ -6,8 +6,9 @@ _Static_assert(UINT8_MAX==255);
 _Static_assert(UINT16_MAX==65535);
 _Static_assert(UINT32_MAX==4294967295);
 // #define M0E8SH_0 4500000
-#define M0E8SH_X 300000
-#define M0E8SH_Y   5000
+#define DELAY_ON  300000
+#define DELAY_OFF 300000
+#define DELAY_DIM   5000
 
 // void f_txled_on(){
 //   DDRD |= (1<<5);
@@ -51,16 +52,16 @@ void f_blink_loop(){
   // for(;;){
   //   on(); delay(M0E8SH_X);
   //   off(); delay(M0E8SH_0);
-  //   for(uint32_t i=0; i<M0E8SH_Y; ++i){(i%20>0)?off():on();}
+  //   for(uint32_t i=0; i<DELAY_DIM; ++i){(i%20>0)?off():on();}
   //   off(); delay(M0E8SH_0);
   // }
   for(;;){
-    on(); delay(M0E8SH_X);
-    off(); delay(M0E8SH_X);
-    for(uint32_t i=0; i<M0E8SH_Y; ++i){(i%20>0)?off():on();}
-    off(); delay(M0E8SH_X);
-    for(uint32_t i=0; i<M0E8SH_Y; ++i){(i%20>0)?off():on();}
-    off(); delay(M0E8SH_X);
+    on(); delay(DELAY_ON); off(); delay(DELAY_OFF);
+    for(uint32_t i=0; i<DELAY_DIM; ++i){(i%200>0)?off():on();} off(); delay(DELAY_OFF);
+    for(uint32_t i=0; i<DELAY_DIM; ++i){(i%200>0)?off():on();} off(); delay(DELAY_OFF);
+    for(uint32_t i=0; i<DELAY_DIM; ++i){(i%  5>0)?off():on();} off(); delay(DELAY_OFF);
+    for(uint32_t i=0; i<DELAY_DIM; ++i){(i%200>0)?off():on();} off(); delay(DELAY_OFF);
+    for(uint32_t i=0; i<DELAY_DIM; ++i){(i%200>0)?off():on();} off(); delay(DELAY_OFF);
   }
 }
 
