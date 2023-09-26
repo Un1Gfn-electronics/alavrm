@@ -2,6 +2,13 @@
 #include <avr/io.h>
 #include <avr/sleep.h>
 
+_Static_assert(UINT8_MAX==255);
+_Static_assert(UINT16_MAX==65535);
+_Static_assert(UINT32_MAX==4294967295);
+// #define M0E8SH_0 4500000
+#define M0E8SH_X 300000
+#define M0E8SH_Y   5000
+
 // void f_txled_on(){
 //   DDRD |= (1<<5);
 //   PORTD &= ~(1<<5);
@@ -17,22 +24,43 @@
 //   }
 // }
 
+static inline void delay(const uint32_t interval){
+  for(uint32_t i=0; i<interval; ++i){
+    __asm__ __volatile__("");
+  }
+}
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+static inline void on(){
+  PORTB |= 1<<5;
+}
+static inline void off(){
+  PORTB &= ~(1<<5);
+}
+// static inline void flip(){
+//   PORTB ^= 1<<5;
+// }
+#pragma GCC diagnostic pop
+
 // https://stackoverflow.com/questions/2219829
 // https://stackoverflow.com/questions/7083482
-void f_blink_loop(const uint32_t until){
+
+void f_blink_loop(){
   DDRB |= (1<<5);
-  _Static_assert(UINT16_MAX==65535);
-  _Static_assert(UINT32_MAX==4294967295);
+  // for(;;){
+  //   on(); delay(M0E8SH_X);
+  //   off(); delay(M0E8SH_0);
+  //   for(uint32_t i=0; i<M0E8SH_Y; ++i){(i%20>0)?off():on();}
+  //   off(); delay(M0E8SH_0);
+  // }
   for(;;){
-    // PORTB ^= 1<<5;
-    PORTB |= 1<<5;
-    for(uint32_t i=0; i<until; ++i){
-      __asm__ __volatile__("");
-    }
-    PORTB &= ~(1<<5);
-    for(uint32_t i=0; i<until; ++i){
-      __asm__ __volatile__("");
-    }
+    on(); delay(M0E8SH_X);
+    off(); delay(M0E8SH_X);
+    for(uint32_t i=0; i<M0E8SH_Y; ++i){(i%20>0)?off():on();}
+    off(); delay(M0E8SH_X);
+    for(uint32_t i=0; i<M0E8SH_Y; ++i){(i%20>0)?off():on();}
+    off(); delay(M0E8SH_X);
   }
 }
 
@@ -40,7 +68,7 @@ int main(){
 
   // f_brightness(15);
 
-  f_blink_loop(50000);
+  f_blink_loop();
 
   // f_blink_tc0();
 
