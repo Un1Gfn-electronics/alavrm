@@ -5,16 +5,19 @@ endif
 
 MAKEFLAGS:=-j1 --no-print-directory
 
-# https://www.arduino.cc/en/uploads/Main/arduino-uno-schematic.pdf
+# http://www.rjhcoding.com/avrc-tutorials-home.php
+
 # https://www.microchip.com/en-us/product/atmega328pb
 
 # https://onlinedocs.microchip.com/?find=42559
 # https://onlinedocs.microchip.com/?find=42787
 
-# https://www.microchip.com/en-us/application-notes/an42559   # 328p vs 328pb
-# https://www.microchip.com/en-us/application-notes/an42787   # software user guide
-# https://www.microchip.com/en-us/search?searchQuery=40001906 # datasheet
-# https://www.microchip.com/en-us/search?searchQuery=40002198 # instruction set
+# https://docs.arduino.cc/hardware/uno-rev3
+# https://www.arduino.cc/en/uploads/Main/arduino-uno-schematic.pdf # schematic
+# https://www.microchip.com/en-us/application-notes/an42559        # 328p vs 328pb
+# https://www.microchip.com/en-us/application-notes/an42787        # software user guide
+# https://www.microchip.com/en-us/search?searchQuery=40001906      # datasheet
+# https://www.microchip.com/en-us/search?searchQuery=40002198      # instruction set
 
 # https://stuvel.eu/post/2021-04-27-atmega328pb-on-gcc/
 # https://gist.github.com/goncalor/51e1c8038cc058b4379552477255b4e1
@@ -26,7 +29,8 @@ C:=avr-gcc
 # C+=-H
 C+=-mmcu=atmega328p
 C+=-std=gnu17 -Wall -Wextra
-C+=-Os
+C+=-O0
+# C+=-Os
 C+=-DF_CPU=16000000UL
 
 # .PRECIOUS:
