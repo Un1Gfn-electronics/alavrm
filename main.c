@@ -13,6 +13,9 @@ _Static_assert(UINT32_MAX==4294967295);
 
 // #define DELAY_OFF 500000
 
+// #define H(REG,BIT) {REG|=_BV(BIT);}
+// #define L(REG,BIT) {REG&=~_BV(BIT);}
+
 // void f_brightness(const uint8_t ceil){
 //   DDRB |= (1<<5);
 //   for(uint8_t i=0; 1; ++i){
@@ -114,37 +117,37 @@ _Static_assert(UINT32_MAX==4294967295);
 //   }
 // }
 
-// OC0A - Port.D.6 - IO6
-void f_pwm_tcc0(){
+// // OC0A - Port.D.6 - IO6
+// void f_pwm_tcc0(){
 
 
-  cli();
+//   cli();
 
-  // 17.3.1 - Alternate Functions of Port B - OC1A
-  // PWM mode timer function
-  // Timer/Counter1 Compare Match A
-  DDRD |= (1<<DDD6);
+//   // 17.3.1 - Alternate Functions of Port B - OC1A
+//   // PWM mode timer function
+//   // Timer/Counter1 Compare Match A
+//   DDRD |= (1<<DDD6);
 
-  // set PWM for 50% duty cycle at 10bit
-  OCR1A = 0x01FF;
+//   // set PWM for 50% duty cycle at 10bit
+//   OCR1A = 0x01FF;
 
-  // set non-inverting mode
-  TCCR1A |= (1 << COM1A1);
+//   // set non-inverting mode
+//   TCCR1A |= (1 << COM1A1);
 
-  // set 10bit phase corrected PWM Mode
-  TCCR1A |= (1 << WGM11) | (1 << WGM10);
+//   // set 10bit phase corrected PWM Mode
+//   TCCR1A |= (1 << WGM11) | (1 << WGM10);
 
-  // set prescaler to 8 and starts PWM
-  // TCCR1B |= (0<<CS12)|(0<<CS11)|(1<<CS10);
-  TCCR1B |= (0<<CS12)|(1<<CS11)|(0<<CS10);
-  // TCCR1B |= (0<<CS12)|(1<<CS11)|(1<<CS10);
-  // TCCR1B |= (1<<CS12)|(0<<CS11)|(0<<CS10);
+//   // set prescaler to 8 and starts PWM
+//   // TCCR1B |= (0<<CS12)|(0<<CS11)|(1<<CS10);
+//   TCCR1B |= (0<<CS12)|(1<<CS11)|(0<<CS10);
+//   // TCCR1B |= (0<<CS12)|(1<<CS11)|(1<<CS10);
+//   // TCCR1B |= (1<<CS12)|(0<<CS11)|(0<<CS10);
 
-  sei();
+//   sei();
 
-  for(;;){}
+//   for(;;){}
 
-}
+// }
 
 // OC1A - PORT.B.1 - IO9
 void f_pwm_tcc1(){
@@ -156,20 +159,20 @@ void f_pwm_tcc1(){
   // Timer/Counter1 Compare Match A
   DDRB |= _BV(DDB1);
 
-  // set PWM for 50% duty cycle at 10bit
-  OCR1A = 512-1;
+  // FastPWM.TOP_OCR1A
+  // OCR1A = 65535;
+  OCR1A = 500;
 
-  // set non-inverting mode
-  TCCR1A |= _BV(COM1A1);
-  TCCR1A &= ~_BV(COM1A0);
+  // FastPWM.WGM_15 Toggle OC1A when TCT reaches TOP aka OCR1A
+  TCCR1A &= ~_BV(COM1A1);
+  TCCR1A |= _BV(COM1A0);
 
-  // set 10bit phase corrected PWM Mode
+  // FastPWM.TOP_OCR1A
+  TCCR1B |= _BV(WGM13) | _BV(WGM12);
   TCCR1A |= _BV(WGM11) | _BV(WGM10);
 
-  // set prescaler to 8 and starts PWM
-  TCCR1B &= ~_BV(CS12);
+  // prescaler
   TCCR1B |= _BV(CS11);
-  TCCR1B &= ~_BV(CS10);
 
   sei();
 
