@@ -28,9 +28,9 @@ MAKEFLAGS:=-j1 --no-print-directory
 C:=avr-gcc
 # C+=-H
 C+=-mmcu=atmega328p
-C+=-std=gnu17 -Wall -Wextra
-C+=-O0
-# C+=-Os
+C+=-std=gnu17 -Wall -Wextra -Wno-array-bounds
+# C+=-O0
+C+=-Os
 C+=-DF_CPU=16000000UL
 
 # .PRECIOUS:
@@ -47,7 +47,7 @@ default:
 
 # tty.usbserial-130
 upload:
-	avrdude -c arduino -p m328p -P /dev/cu.usbserial-130 -b 115200 -U flash:w:a.hex
+	avrdude -e -c arduino -p m328p -P /dev/cu.usbserial-130 -b 115200 -U flash:w:a.hex
 
 a.hex:
 	avr-objcopy -j .text -j .data -O ihex a.elf $@
@@ -55,8 +55,8 @@ a.hex:
 lst:
 	avr-objdump -h -S a.elf
 
-a.elf: main.c
-	$(C) -o $@ $^
+a.elf: main.c beeper.c beeper.h
+	$(C) -o $@ $(filter %.c,$^)
 
 # https://gist.github.com/mhitza/8a4608f4dfdec20d3879
 # http://www.rjhcoding.com/avr-asm-light-an-led.php
