@@ -5,6 +5,12 @@ endif
 
 MAKEFLAGS:=-j1 --no-print-directory
 
+# netlist:
+# port[~9] -- switch -- buzzer
+# buzzer + 220ohm + gnd
+#        |        |
+#        + 220ohm +
+
 # http://www.rjhcoding.com/avrc-tutorials-home.php
 
 # https://www.microchip.com/en-us/product/atmega328pb
@@ -55,7 +61,8 @@ a.hex:
 lst:
 	avr-objdump -h -S a.elf
 
-a.elf: main.c beeper.c beeper.h
+a.elf: main.c beeper.c song.c beeper.h pitch.py
+	python3 ./pitch.py >pitch.tmp.h
 	$(C) -o $@ $(filter %.c,$^)
 
 # https://gist.github.com/mhitza/8a4608f4dfdec20d3879
@@ -69,7 +76,7 @@ erase:
 	avrdude -c arduino -p m328p -P /dev/cu.usbserial-130 -b 115200 -e
 
 clean:
-	rm -fv *.elf *.hex *.o *.obj *.out
+	rm -fv *.elf *.hex *.o *.obj *.out *.tmp.h
 
 info:
 	type avr-gcc

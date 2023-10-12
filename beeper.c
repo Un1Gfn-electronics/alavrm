@@ -1,11 +1,32 @@
-#include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/io.h>
+#include <avr/sleep.h>
+#include <util/delay.h>
+#include <string.h>
 
 #include "beeper.h"
 
-void beeper_init(){
+uint16_t beeper_unit = 10;
 
-  cli();
+void P(const char *s, uint16_t pitch){
+  uint16_t rhythm = 0;
+  if(0==strcmp(s, "\\breve")) rhythm = 64;
+  else if(0==strcmp(s, "1"))  rhythm = 32;
+  else if(0==strcmp(s, "2"))  rhythm = 16;
+  else if(0==strcmp(s, "4"))  rhythm = 8;
+  else if(0==strcmp(s, "8"))  rhythm = 4;
+  else if(0==strcmp(s, "16")) rhythm = 2;
+  else if(0==strcmp(s, "32")) rhythm = 1;
+  else if(0==strcmp(s, "1.")) rhythm = 48;
+  else if(0==strcmp(s, "2.")) rhythm = 24;
+  else if(0==strcmp(s, "4.")) rhythm = 12;
+  else if(0==strcmp(s, "8.")) rhythm = 6;
+  else if(0==strcmp(s, "16.")) rhythm = 3;
+  else for(;;){sleep_mode();}
+  beeper_tone(rhythm, pitch);
+}
+
+void beeper_init(){
 
   // 17.3.1 - Alternate Functions of Port B - OC1A
   // PWM mode timer function
@@ -39,14 +60,18 @@ void beeper_init(){
 
 }
 
-void beeper_tone(uint16_t tone){
-
-  cli();
-  // sei();
-
+void beeper_tone(uint16_t rhythm, uint16_t tone){
   // FastPWM.TOP_OCR1A
-  OCR1A = tone;
-
+  if(0==tone){
+    L(DDRB, DDB1);
+  }else{
+    OCR1A = tone;
+    H(DDRB, DDB1);
+  }
+  // _delay_ms(ms); // __builtin_avr_delay_cycles expects a compile time integer constant
+  for(uint16_t i=beeper_unit*rhythm; i!=0; --i){
+    _delay_loop_2(UINT16_MAX);
+  }
 }
 
 void beeper_end(){
