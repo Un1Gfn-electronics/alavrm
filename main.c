@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/sleep.h>
+#include <avr/interrupt.h>
 
 _Static_assert(UINT8_MAX==255);
 _Static_assert(UINT16_MAX==65535);
@@ -22,45 +23,45 @@ _Static_assert(UINT32_MAX==4294967295);
 //   }
 // }
 
-static inline void delay(const uint32_t interval){
-  for(uint32_t i=0; i<interval; ++i){
-    // __asm__ __volatile__("");
-  }
-}
+// static inline void delay(const uint32_t interval){
+//   for(uint32_t i=0; i<interval; ++i){
+//     // __asm__ __volatile__("");
+//   }
+// }
 
-static inline void cycle(const uint32_t half, const uint32_t n){
-  const uint32_t nn = n / half;
-  if(0==n){
-    for(;;){
-      PORTB &= ~(1<<PB1);
-      delay(half);
-      PORTB |= (1<<PB1);
-      delay(half);
-    }
-  }else{
-    for(uint32_t i=0; i<nn; ++i){
-      PORTB &= ~(1<<PB1);
-      delay(half);
-      PORTB |= (1<<PB1);
-      delay(half);
-    }
-  }
-}
+// static inline void cycle(const uint32_t half, const uint32_t n){
+//   const uint32_t nn = n / half;
+//   if(0==n){
+//     for(;;){
+//       PORTB &= ~(1<<PB1);
+//       delay(half);
+//       PORTB |= (1<<PB1);
+//       delay(half);
+//     }
+//   }else{
+//     for(uint32_t i=0; i<nn; ++i){
+//       PORTB &= ~(1<<PB1);
+//       delay(half);
+//       PORTB |= (1<<PB1);
+//       delay(half);
+//     }
+//   }
+// }
 
-void f_pwm_loop(){
-  DDRB |= (1<<DDB1);
-  // static const uint32_t interval = 200;
-  cycle(100,200000);
-  cycle(200,200000);
-  cycle(300,200000);
-  cycle(410,0);
+// void f_pwm_loop(){
+//   DDRB |= (1<<DDB1);
+//   // static const uint32_t interval = 200;
+//   cycle(100,200000);
+//   cycle(200,200000);
+//   cycle(300,200000);
+//   cycle(410,0);
 
-  // for(uint32_t i=0; i<1000; ++i){PORTB &= ~(1<<PB1); delay(interval); PORTB |= (1<<PB1); delay(interval);}
-  // for(uint32_t i=0; i<1000; ++i){PORTB &= ~(1<<PB1); delay(interval); PORTB |= (1<<PB1); delay(interval);}
-  // for(;;){PORTB &= ~(1<<PB1); delay(interval); PORTB |= (1<<PB1); delay(interval);}
-  // for(;;){sleep_mode();}
-  for(;;){}
-}
+//   // for(uint32_t i=0; i<1000; ++i){PORTB &= ~(1<<PB1); delay(interval); PORTB |= (1<<PB1); delay(interval);}
+//   // for(uint32_t i=0; i<1000; ++i){PORTB &= ~(1<<PB1); delay(interval); PORTB |= (1<<PB1); delay(interval);}
+//   // for(;;){PORTB &= ~(1<<PB1); delay(interval); PORTB |= (1<<PB1); delay(interval);}
+//   // for(;;){sleep_mode();}
+//   for(;;){}
+// }
 
 // #pragma GCC diagnostic push
 // #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -113,24 +114,89 @@ void f_pwm_loop(){
 //   }
 // }
 
-// void f_pwm_tc0(){
+// OC0A - Port.D.6 - IO6
+void f_pwm_tcc0(){
 
-//   DDRB |= (1<<DDB1);
 
-//   // set PWM for 50% duty cycle at 10bit
-//   OCR1A = 0x01FF;
+  cli();
 
-//   // set non-inverting mode
-//   TCCR1A |= (1 << COM1A1);
+  // 17.3.1 - Alternate Functions of Port B - OC1A
+  // PWM mode timer function
+  // Timer/Counter1 Compare Match A
+  DDRD |= (1<<DDD6);
 
-//   // set 10bit phase corrected PWM Mode
-//   TCCR1A |= (1 << WGM11) | (1 << WGM10);
+  // set PWM for 50% duty cycle at 10bit
+  OCR1A = 0x01FF;
 
-//   // set prescaler to 8 and starts PWM
-//   TCCR1B |= (1 << CS11);
+  // set non-inverting mode
+  TCCR1A |= (1 << COM1A1);
 
-//   for(;;){}
+  // set 10bit phase corrected PWM Mode
+  TCCR1A |= (1 << WGM11) | (1 << WGM10);
 
+  // set prescaler to 8 and starts PWM
+  // TCCR1B |= (0<<CS12)|(0<<CS11)|(1<<CS10);
+  TCCR1B |= (0<<CS12)|(1<<CS11)|(0<<CS10);
+  // TCCR1B |= (0<<CS12)|(1<<CS11)|(1<<CS10);
+  // TCCR1B |= (1<<CS12)|(0<<CS11)|(0<<CS10);
+
+  sei();
+
+  for(;;){}
+
+}
+
+// OC1A - PORT.B.1 - IO9
+void f_pwm_tcc1(){
+
+  cli();
+
+  // 17.3.1 - Alternate Functions of Port B - OC1A
+  // PWM mode timer function
+  // Timer/Counter1 Compare Match A
+  DDRB |= _BV(DDB1);
+
+  // set PWM for 50% duty cycle at 10bit
+  OCR1A = 512-1;
+
+  // set non-inverting mode
+  TCCR1A |= _BV(COM1A1);
+  TCCR1A &= ~_BV(COM1A0);
+
+  // set 10bit phase corrected PWM Mode
+  TCCR1A |= _BV(WGM11) | _BV(WGM10);
+
+  // set prescaler to 8 and starts PWM
+  TCCR1B &= ~_BV(CS12);
+  TCCR1B |= _BV(CS11);
+  TCCR1B &= ~_BV(CS10);
+
+  sei();
+
+  for(;;){}
+
+}
+
+// static const uint16_t value = 3035;
+
+// static uint8_t pd7_io7 = 0b00000000;
+
+// ISR(TIMER1_OVF_vect){
+//   pd7_io7 ^= (1<<DDB7);
+//   TCNT1 = value; // preload timer
+//   PORTD = pd7_io7;
+//   reti();
+// }
+
+// void f_int(){
+//   cli();
+//   TCCR1A = 0b00000000;
+//   TCCR1B = 0b00000000;
+//   TCNT1 = value;                       // preload timer
+//   TCCR1B |= (1<<CS10)|(1<<CS12);      // 1024 prescaler
+//   TIMSK1 |= (1<<TOIE1);               // enable timer overflow interrupt ISR aka TIMER1_OVF_vect
+//   sei();
+//   DDRD |= (1<<PB7);
 // }
 
 int main(){
@@ -140,8 +206,11 @@ int main(){
   // f_blink_loop();
   // f_blink_tc0();
   // f_3led();
-  // f_pwm_tc0();
-  f_pwm_loop();
+
+  f_pwm_tcc1();
+  // f_pwm_loop();
+
+  // f_int();
 
   // for(;;){sleep_mode();}
 
