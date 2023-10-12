@@ -22,21 +22,35 @@ void beeper_init(){
   H(TCCR1A, WGM11);
   H(TCCR1A, WGM10);
 
-  // prescaler
+  // prescaler=1
   L(TCCR1B, CS12);
-  H(TCCR1B, CS11);
+  L(TCCR1B, CS11);
   H(TCCR1B, CS10);
 
-}
+  // prescaler=8
+  // L(TCCR1B, CS12);
+  // H(TCCR1B, CS11);
+  // L(TCCR1B, CS10);
 
+  // prescaler=32
+  // L(TCCR1B, CS12);
+  // H(TCCR1B, CS11);
+  // H(TCCR1B, CS10);
+
+}
 
 void beeper_tone(uint16_t tone){
 
   cli();
+  // sei();
 
   // FastPWM.TOP_OCR1A
   OCR1A = tone;
 
-  sei();
+}
 
+void beeper_end(){
+  TCCR1A = 0;
+  TCCR1B = 0;
+  L(DDRB, DDB1);
 }

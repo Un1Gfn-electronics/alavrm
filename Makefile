@@ -70,3 +70,6 @@ erase:
 
 clean:
 	rm -fv *.elf *.hex *.o *.obj *.out
+
+info:
+	type avr-gcc

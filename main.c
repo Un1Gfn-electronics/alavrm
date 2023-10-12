@@ -1,5 +1,6 @@
 #include <avr/sleep.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
 
 #include "beeper.h"
 
@@ -7,14 +8,45 @@ int main(){
 
   beeper_init();
 
-  beeper_tone(62);
-  _delay_ms(1000.0);
+  // beeper_tone(450);
+  // wavelength
+  const uint16_t a[] = {
 
-  beeper_tone(124);
-  _delay_ms(1000.0);
+    18181u,
+    14430u,
+    12134u,
+    9090u,
 
-  beeper_tone(90);
-  _delay_ms(1000.0);
+    // 627u,
+
+    // CS = 011
+
+    // 560u, // A
+    // 465u, // C*
+    // 380u, // E
+
+    // 280u, // A*
+    // 233u, // C
+    // 190u, // E*
+
+    // 157u,
+
+    // 140u, // A
+    // 116u, // C
+    //  95u, // E
+
+    0u
+
+  };
+
+  for(;;){
+    for(const uint16_t *p = a; *p!=0; ++p){
+      beeper_tone(*p);
+      _delay_ms(1000.0);
+    }
+    // beeper_end();
+  }
+  beeper_end();
 
   // for(;;){}
   // for(;;){sleep_mode();}

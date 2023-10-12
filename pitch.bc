@@ -1,0 +1,15 @@
+#!/opt/homebrew/opt/bc/bin/bc
+
+scale=7
+
+# output compare register
+define ocr(prescaler, pitchfreq) {
+  return (16*10^6/(pitchfreq*prescaler)-1)
+}
+
+ocr(1,  880.00)
+ocr(1, 1108.73)
+ocr(1, 1318.51)
+ocr(1, 1760.00)
+
+quit()

@@ -7,7 +7,7 @@
 #define L(REG,BIT) {REG&=~_BV(BIT);}
 
 void beeper_init();
-
 void beeper_tone(uint16_t);
+void beeper_end();
 
 #endif
